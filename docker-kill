@@ -1,0 +1,10 @@
+#!/bin/bash
+if [ -z "$1" ]; then
+    echo "You need to pass in a docker tag name"
+    exit
+fi
+
+
+docker stop $1
+docker rm $1
+docker-iterm-dynamic-profiles

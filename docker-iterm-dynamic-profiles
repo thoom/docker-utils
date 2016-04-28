@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+if __FILE__ == $PROGRAM_NAME
+  require 'json'
+  require 'securerandom'
+
+  docker_json = File.expand_path('~/Library/Application Support/iTerm2/DynamicProfiles/docker.json')
+  docker_names = `eval $(docker-machine env default) && docker ps --format '{{.Names}}'`
+  if docker_names.empty?
+    `rm #{ docker_json }`
+  else
+    profiles = []
+    docker_names.each_line do |name|
+      name.strip!
+      profile = {
+        Name: name,
+        Guid: SecureRandom.uuid,
+        'Dynamic Profile Parent Name': 'Docker',
+        'Initial Text': "docker-exec #{ name }"
+      }
+
+      profiles << profile
+    end
+
+    File.write(docker_json, {Profiles: profiles}.to_json)
+  end
+end

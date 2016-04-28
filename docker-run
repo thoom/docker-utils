@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker run "${@:1}"
+docker-iterm-dynamic-profiles
