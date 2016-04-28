@@ -18,5 +18,7 @@ export LS_OPTS='--color=auto'; \
 export PS1='$1:\[\e[33m\]\w\[\e[m\] \u \[\e[36m\]\\$\[\e[m\] '; \
 if [[ ! -e ~/.bashrc ]]; then touch ~/.bashrc; fi; \
 if [[ ! -e ~/.bashrc_orig ]]; then cp ~/.bashrc ~/.bashrc_orig; fi; \
-rm -f ~/.bashrc; cp ~/.bashrc_orig ~/.bashrc; echo \"alias ll='ls --color=always -lah'\" >> ~/.bashrc; \
+rm -f ~/.bashrc; cp ~/.bashrc_orig ~/.bashrc; \
+echo \"alias ls='ls --color=always'\" >> ~/.bashrc; \
+echo \"alias ll='ls --color=always -lah'\" >> ~/.bashrc; \
 bash"
