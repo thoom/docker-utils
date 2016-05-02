@@ -7,15 +7,17 @@ if __FILE__ == $PROGRAM_NAME
   # Make sure that the docker VM is running
   docker_env = `docker-machine env default 2>&1`
   unless docker_env.strip == 'Error checking TLS connection: Host is not running'
-    docker_names = `eval $(#{ docker_env }) && docker ps --format '{{.Names}}' 2>/dev/null`
+    docker_names = `eval $(docker-machine env default) && docker ps --format '{{.Names}}'`
   end
 
   docker_json = File.expand_path('~/Library/Application Support/iTerm2/DynamicProfiles/docker.json')
   if docker_names.nil? || docker_names.empty?
-    puts "No active docker containers. Removing docker profiles."
-    `rm '#{ docker_json }'`
+    if File.exists?(docker_json)
+      puts "No active docker containers. Removing docker profiles."
+      `rm '#{ docker_json }'`
+    end
   else
-    puts "Running Docker containers found. Adding docker profiles."
+    puts "Adding new docker profiles." unless File.exists?(docker_json)
     profiles = []
     docker_names.each_line do |name|
       name.strip!
