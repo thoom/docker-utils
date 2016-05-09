@@ -4,10 +4,10 @@ if __FILE__ == $PROGRAM_NAME
   require 'json'
   require 'securerandom'
 
-  # Make sure that the docker VM is running
-  docker_env = `docker-machine env default 2>&1`
-  unless docker_env.strip == 'Error checking TLS connection: Host is not running'
-    docker_names = `eval $(docker-machine env default) && docker ps --format '{{.Names}}'`
+  # Make sure that a docker VM is running
+  docker_env = `docker-machine ls --filter state=Running --format '{{.Name}}'`
+  unless docker_env.strip.empty?
+    docker_names = `eval $(docker-machine env #{ docker_env }) && docker ps --format '{{.Names}}'`
   end
 
   docker_json = File.expand_path('~/Library/Application Support/iTerm2/DynamicProfiles/docker.json')
