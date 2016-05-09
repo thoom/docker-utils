@@ -5,9 +5,15 @@ if __FILE__ == $PROGRAM_NAME
   require 'securerandom'
 
   # Make sure that a docker VM is running
-  docker_env = `docker-machine ls --filter state=Running --format '{{.Name}}'`
-  unless docker_env.strip.empty?
-    docker_names = `eval $(docker-machine env #{ docker_env }) && docker ps --format '{{.Names}}'`
+  docker_env = `docker-machine ls --filter state=Running --format '{{.Name}}'`.strip
+  if docker_env.lines.count > 1
+    puts "More than 1 docker environment found. Defaulting to first environment"
+    docker_env = docker_env.lines[0].strip
+  end
+
+  unless docker_env.empty?
+    cmd = "eval $(docker-machine env #{ docker_env }) && docker ps --format '{{.Names}}'"
+    docker_names = `#{ cmd }`
   end
 
   docker_json = File.expand_path('~/Library/Application Support/iTerm2/DynamicProfiles/docker.json')
