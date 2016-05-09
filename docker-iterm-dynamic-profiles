@@ -4,15 +4,26 @@ if __FILE__ == $PROGRAM_NAME
   require 'json'
   require 'securerandom'
 
+  #
   # Make sure that a docker VM is running
-  docker_env = `docker-machine ls --filter state=Running --format '{{.Name}}'`.strip
-  if docker_env.lines.count > 1
-    puts "More than 1 docker environment found. Defaulting to first environment"
-    docker_env = docker_env.lines[0].strip
-  end
-
+  # Unfortunately, if there are errors with a docker machine, then the error will still spill out
+  # Remove it using grep
+  #
+  docker_env = `docker-machine ls --filter "state=Running" --format '{{.Active}}\t{{.Name}}\t{{.State}}' | grep Running`.strip
   unless docker_env.empty?
-    cmd = "eval $(docker-machine env #{ docker_env }) && docker ps --format '{{.Names}}'"
+    if docker_env.lines.count > 1
+      puts "More than 1 docker environment found. Defaulting to active (or first) environment"
+    end
+
+    env = nil
+    docker_env.each_line do |line|
+      active, name = line.split("\t")
+      if env.nil? || active == '*'
+        env = name
+      end
+    end
+
+    cmd = "eval $(docker-machine env #{ env }) && docker ps --format '{{.Names}}'"
     docker_names = `#{ cmd }`
   end
 
