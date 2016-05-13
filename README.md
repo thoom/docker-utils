@@ -1,12 +1,17 @@
 # docker-utils
-CLI scripts to help with boot2docker, iTerm2, and OS X integration
+CLI scripts to help with
+[Docker Toolbox](https://www.docker.com/products/docker-toolbox),
+[iTerm2](https://www.iterm2.com/),
+and OS X integration.
+
+Because they are built with OS X in mind, a few of them use Ruby.
+These scripts are only meant to be used in a development environment.
 
 
 ## docker-exec
-Script to simplify entering the container by providing an opportunity to build
+Ruby-based script to simplify entering the container by providing an opportunity to build
 a docker exec script based on a YAML file `~/.docker-exec.yml`.
 
-This script uses Ruby and requires the [RubyExpect](https://github.com/abates/ruby_expect) gem.
 Without a YAML file, it uses an exec script similar to that provided by Kitematic.
 
 A sample YAML file:
@@ -34,7 +39,8 @@ A few notes:
 
 
 ## docker-iterm-dynamic-profiles
-Builds a list of [Dynamic Profiles](https://www.iterm2.com/dynamic-profiles.html) in iTerm2 based on the running containers. Used with `docker-run`, `docker-stop`, or `docker-kill` to trigger changes.
+Builds a list of [Dynamic Profiles](https://www.iterm2.com/dynamic-profiles.html) in iTerm2 based on the running containers.
+Used with `docker-run`, `docker-stop`, or `docker-kill` to trigger changes.
 
 Expects a base profile called Docker to pull colors and other info from.
 
