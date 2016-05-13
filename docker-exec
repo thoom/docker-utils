@@ -1,5 +1,10 @@
 #! /bin/bash
 
+if [ -z "$1" ]; then
+    echo "You need to pass in a docker tag name"
+    exit
+fi
+
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
