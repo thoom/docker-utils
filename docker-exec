@@ -1,24 +1,43 @@
-#! /bin/bash
+#! /usr/bin/env ruby
 
-if [ -z "$1" ]; then
-    echo "You need to pass in a docker tag name"
+if __FILE__ == $PROGRAM_NAME
+  require 'ruby_expect'
+  require 'yaml'
+
+  if ARGV.empty?
+    puts 'You need to pass in a docker tag name'
     exit
-fi
+  end
 
-# These should be set from `eval "$(docker-machine env default)"`
-# DOCKER_HOST=tcp://192.168.99.100:2376
-# DOCKER_CERT_PATH=$HOME/.docker/machine/machines/default
-# DOCKER_TLS_VERIFY=1
+  docker_tag = ARGV[ARGV.length - 1]
 
-clear
-# docker exec -it $1 sh
-docker exec -it $1 sh -c "export TERM=xterm-256color; \
-export LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33'; \
-export LS_OPTS='--color=auto'; \
-export PS1='$1:\[\e[33m\]\w\[\e[m\] \u \[\e[36m\]\\$\[\e[m\] '; \
-if [[ ! -e ~/.bashrc ]]; then touch ~/.bashrc; fi; \
-if [[ ! -e ~/.bashrc_orig ]]; then cp ~/.bashrc ~/.bashrc_orig; fi; \
-rm -f ~/.bashrc; cp ~/.bashrc_orig ~/.bashrc; \
-echo \"alias ls='ls --color=always'\" >> ~/.bashrc; \
-echo \"alias ll='ls --color=always -lah'\" >> ~/.bashrc; \
-bash"
+  cmd = 'clear && docker exec -it $1 sh'
+  yaml_file = File.expand_path('~/.docker-exec.yml')
+  if File.exist?(yaml_file)
+    config = YAML.load_file(yaml_file)
+    cmd_pieces = []
+    if config.key?('env')
+      config['env'].each { |key, value| cmd_pieces << "export #{key.upcase}='#{value}'" }
+    end
+
+    if config.has_key?('bashrc')
+      cmd_pieces << 'if [[ ! -e ~/.bashrc ]]; then touch ~/.bashrc; fi'
+      cmd_pieces << 'if [[ ! -e ~/.bashrc_orig ]]; then cp ~/.bashrc ~/.bashrc_orig; fi'
+      cmd_pieces << 'rm -f ~/.bashrc; cp ~/.bashrc_orig ~/.bashrc'
+      config['bashrc'].each {|line| cmd_pieces << "echo \\\"#{line.gsub('"', "'")}\\\" >> ~/.bashrc" }
+    end
+
+    if config.has_key?('cmd')
+      config['cmd'].each {|line| cmd_pieces << line.gsub('"', '\\"')}
+    end
+
+    unless cmd_pieces.empty?
+      cmd_pieces << 'bash'
+      cmd += " -c \"#{cmd_pieces.join("; \ \n")}\""
+    end
+  end
+
+  cmd.gsub!(/\$1/, docker_tag)
+  # puts cmd
+  RubyExpect::Expect.spawn(cmd).interact
+end

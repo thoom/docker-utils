@@ -1,8 +1,34 @@
 # docker-utils
 CLI scripts to help with boot2docker, iTerm2, and OS X integration
 
+
 ## docker-exec
-Script to simplify entering the container and setting some term coloring and aliases
+Script to simplify entering the container by providing an opportunity to build
+a docker exec script based on a YAML file `~/.docker-exec.yml`.
+
+This script uses Ruby and requires the [RubyExpect](https://github.com/abates/ruby_expect) gem.
+Without a YAML file, it uses an exec script similar to that provided by Kitematic.
+
+A sample YAML file:
+
+    env:
+      term: xterm-256color
+      ls_colors: rs=0:di=01;34:ln=01;36:mh=00:pi=40;33
+      ls_opts: --color=auto
+      ps1: '$1:\\[\e[33m\]\w\[\e[m\] \u \[\e[36m\]\\$\[\e[m\] '
+    bashrc:
+      - alias ls='ls --color=always'
+      - alias ll='ls --color=always -lah'
+    cmd:
+      - cd ~
+      - echo "Container name => $1"
+
+A few notes:
+1. Use `$1` as a placeholder for the docker tag name.
+2. __env__ is a hash that will create export the key/value pair to container's bash environment.
+3. __bashrc__ is an array that will add the values to the container's `.bashrc` file.
+4. __cmd__ is an array that will run the listed commands before entering the container.
+
 
 ## docker-iterm-dynamic-profiles
 Builds a list of [Dynamic Profiles](https://www.iterm2.com/dynamic-profiles.html) in iTerm2 based on the running containers. Used with `docker-run`, `docker-stop`, or `docker-kill` to trigger changes.
@@ -41,5 +67,5 @@ Stops and removes a docker container.
 ## docker-run
 Starts a docker container.
 
-##docker-stop
+## docker-stop
 Stops a docker container.
