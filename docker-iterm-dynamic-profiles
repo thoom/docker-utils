@@ -23,12 +23,12 @@ if __FILE__ == $PROGRAM_NAME
       end
     end
 
-    cmd = "eval $(docker-machine env #{ env }) && docker ps --format '{{.Names}}'"
-    docker_names = `#{ cmd }`
+    cmd = "eval $(docker-machine env #{ env }) && docker ps --format '{{.Names}}\t{{.ID}}'"
+    docker_ps = `#{ cmd }`
   end
 
   docker_json = File.expand_path('~/Library/Application Support/iTerm2/DynamicProfiles/docker.json')
-  if docker_names.nil? || docker_names.empty?
+  if docker_ps.nil? || docker_ps.empty?
     if File.exists?(docker_json)
       puts "No active docker containers. Removing docker profiles."
       `rm '#{ docker_json }'`
@@ -36,13 +36,16 @@ if __FILE__ == $PROGRAM_NAME
   else
     puts "Adding new docker profiles." unless File.exists?(docker_json)
     profiles = []
-    docker_names.each_line do |name|
+    docker_ps.each_line do |line|
+      name, host = line.split(/\t/)
       name.strip!
+      host.strip!
       profile = {
         Name: name,
         Guid: SecureRandom.uuid,
         'Dynamic Profile Parent Name': 'Docker',
-        'Initial Text': "docker-exec #{ name }"
+        'Initial Text': "docker-exec #{ name }",
+        'Bound Hosts': [host]
       }
 
       profiles << profile

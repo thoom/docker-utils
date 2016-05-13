@@ -15,17 +15,19 @@ A sample YAML file:
       term: xterm-256color
       ls_colors: rs=0:di=01;34:ln=01;36:mh=00:pi=40;33
       ls_opts: --color=auto
-      ps1: '$1:\\[\e[33m\]\w\[\e[m\] \u \[\e[36m\]\\$\[\e[m\] '
+      ps1: '\h:\\[\e[33m\]\w\[\e[m\] \u \[\e[36m\]\\$\[\e[m\] '
     bashrc:
       - alias ls='ls --color=always'
       - alias ll='ls --color=always -lah'
     cmd:
       - cd ~
-      - echo "Container name => $1"
+      - echo "container => $1"
+      - hostname $2
 
 A few notes:
 
 1. Use `$1` as a placeholder for the docker tag name.
+2. Use `$2` as a hostname compatible placeholder for the docker tag name.
 2. __env__ is a hash that will create export the key/value pair to container's bash environment.
 3. __bashrc__ is an array that will add the values to the container's `.bashrc` file.
 4. __cmd__ is an array that will run the listed commands before entering the container.

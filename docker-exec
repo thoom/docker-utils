@@ -9,8 +9,6 @@ if __FILE__ == $PROGRAM_NAME
     exit
   end
 
-  docker_tag = ARGV[ARGV.length - 1]
-
   cmd = 'clear && docker exec -it $1 sh'
   yaml_file = File.expand_path('~/.docker-exec.yml')
   if File.exist?(yaml_file)
@@ -20,24 +18,25 @@ if __FILE__ == $PROGRAM_NAME
       config['env'].each { |key, value| cmd_pieces << "export #{key.upcase}='#{value}'" }
     end
 
-    if config.has_key?('bashrc')
+    if config.key?('bashrc')
       cmd_pieces << 'if [[ ! -e ~/.bashrc ]]; then touch ~/.bashrc; fi'
       cmd_pieces << 'if [[ ! -e ~/.bashrc_orig ]]; then cp ~/.bashrc ~/.bashrc_orig; fi'
       cmd_pieces << 'rm -f ~/.bashrc; cp ~/.bashrc_orig ~/.bashrc'
-      config['bashrc'].each {|line| cmd_pieces << "echo \\\"#{line.gsub('"', "'")}\\\" >> ~/.bashrc" }
+      config['bashrc'].each { |line| cmd_pieces << "echo \\\"#{line.tr('"', "'")}\\\" >> ~/.bashrc" }
     end
 
-    if config.has_key?('cmd')
-      config['cmd'].each {|line| cmd_pieces << line.gsub('"', '\\"')}
+    if config.key?('cmd')
+      config['cmd'].each { |line| cmd_pieces << line.gsub('"', '\\"') }
     end
 
     unless cmd_pieces.empty?
       cmd_pieces << 'bash'
-      cmd += " -c \"#{cmd_pieces.join("; \ \n")}\""
+      cmd += " -c \"#{cmd_pieces.join(' && ')}\""
     end
   end
 
-  cmd.gsub!(/\$1/, docker_tag)
-  # puts cmd
+  docker_tag = ARGV[ARGV.length - 1]
+  cmd = cmd.gsub(/\$1/, docker_tag).gsub(/\$2/, docker_tag.tr('_', '-'))
+
   RubyExpect::Expect.spawn(cmd).interact
 end
