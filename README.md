@@ -24,6 +24,7 @@ A sample YAML file:
       - echo "Container name => $1"
 
 A few notes:
+
 1. Use `$1` as a placeholder for the docker tag name.
 2. __env__ is a hash that will create export the key/value pair to container's bash environment.
 3. __bashrc__ is an array that will add the values to the container's `.bashrc` file.
