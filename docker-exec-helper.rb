@@ -1,7 +1,7 @@
 require 'yaml'
 
 def build_cmd(docker_tag)
-  cmd = 'clear && docker exec -it $1 sh'
+  cmd = 'clear && docker exec -it $1 bash'
   yaml_file = File.expand_path('~/.docker-exec.yml')
   if File.exist?(yaml_file)
     config = YAML.load_file(yaml_file)
