@@ -6,26 +6,9 @@ if __FILE__ == $PROGRAM_NAME
 
   #
   # Make sure that a docker VM is running
-  # Unfortunately, if there are errors with a docker machine, then the error will still spill out
-  # Remove it using grep
   #
-  docker_env = `docker-machine ls --filter "state=Running" --format '{{.Active}}\t{{.Name}}\t{{.State}}' | grep Running`.strip
-  unless docker_env.empty?
-    if docker_env.lines.count > 1
-      puts "More than 1 docker environment found. Defaulting to active (or first) environment"
-    end
-
-    env = nil
-    docker_env.each_line do |line|
-      active, name = line.split("\t")
-      if env.nil? || active == '*'
-        env = name
-      end
-    end
-
-    cmd = "eval $(docker-machine env #{ env }) && docker ps --format '{{.Names}}\t{{.ID}}'"
-    docker_ps = `#{ cmd }`
-  end
+  cmd = "docker ps --format '{{.Names}}\t{{.ID}}'"
+  docker_ps = `#{ cmd }`
 
   docker_json = File.expand_path('~/Library/Application Support/iTerm2/DynamicProfiles/docker.json')
   if docker_ps.nil? || docker_ps.empty?
